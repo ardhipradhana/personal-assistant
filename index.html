@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Monty AI</title>
+    <style>
+        /* FONT IMPORT */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        /* CSS VARIABLES FOR THEME */
+        :root {
+            --background-dark: #121212;
+            --surface-dark: #1E1E1E;
+            --primary-gold: #FFD700;
+            --accent-cyan: #00FFFF;
+            --text-primary: #EAEAEA;
+            --text-secondary: #A0A0A0;
+            --font-main: 'Inter', sans-serif;
+        }
+
+        /* BASIC RESET & SETUP */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+        }
+
+        /* MAIN APP CONTAINER */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Full viewport height */
+            width: 100%;
+            background-color: var(--background-dark);
+            transition: background-color 0.3s ease;
+        }
+
+        /* HEADER */
+        header {
+            padding: 15px 20px;
+            background-color: var(--surface-dark);
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            color: var(--primary-gold);
+            font-weight: 700;
+        }
+
+        header .status-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
+        }
+
+        /* CHAT LOG */
+        .chat-log {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* For better scrollbar styling on Webkit browsers */
+        .chat-log::-webkit-scrollbar { width: 5px; }
+        .chat-log::-webkit-scrollbar-thumb { background: var(--primary-gold); border-radius: 10px; }
+        .chat-log::-webkit-scrollbar-track { background: var(--surface-dark); }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.5;
+            font-size: 1rem;
+            word-wrap: break-word;
+        }
+
+        .ai-message {
+            background-color: var(--surface-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message {
+            background-color: var(--accent-cyan);
+            color: #000;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        /* TYPING INDICATOR */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator .dot-1 { animation-delay: -0.32s; }
+        .typing-indicator .dot-2 { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        /* FOOTER & INPUTS */
+        footer {
+            padding: 10px 15px;
+            background-color: var(--surface-dark);
+            border-top: 1px solid #2a2a2a;
+            flex-shrink: 0;
+            position: relative;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            width: 100%;
+            position: absolute;
+            left: 0;
+            padding: 10px 15px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        /* CHAT INPUT STYLES */
+        .chat-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .app-container.voice-mode .chat-input-container {
+            opacity: 0;
+            transform: translateX(100%);
+            pointer-events: none;
+        }
+        #chat-input {
+            width: 100%;
+            background-color: var(--background-dark);
+            border: 1px solid #444;
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        #chat-input:focus { outline: none; border-color: var(--primary-gold); }
+        #send-button { background: none; border: none; color: var(--primary-gold); font-size: 1.5rem; cursor: pointer; }
+
+        /* VOICE INPUT STYLES */
+        .voice-input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(-100%);
+            pointer-events: none;
+        }
+        .app-container.voice-mode .voice-input-container {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+        #voice-button {
+            width: 70px;
+            height: 70px;
+            background-color: var(--primary-gold);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+        #voice-button:active { transform: scale(0.95); }
+        .mic-icon { font-size: 2rem; color: var(--background-dark); transition: opacity 0.3s ease; }
+        
+        /* HIVE/ORB ANIMATION */
+        .hive {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #voice-button.recording .hive { opacity: 1; }
+        #voice-button.recording .mic-icon { opacity: 0; }
+        .hive-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 2px solid var(--primary-gold);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+        }
+        #voice-button.recording .hive-ring { animation: hive-pulse 2s ease-out infinite; }
+        .hive-ring-1 { width: 100%; height: 100%; animation-delay: 0s !important; }
+        .hive-ring-2 { width: 100%; height: 100%; animation-delay: 0.5s !important; }
+        .hive-ring-3 { width: 100%; height: 100%; animation-delay: 1s !important; }
+        @keyframes hive-pulse {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+    </style>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <div class="app-container" id="app-container">
+        <header>
+            <div class="status-dot"></div>
+            <h1>Monty</h1>
+        </header>
+
+        <main class="chat-log" id="chat-log">
+            <div class="message ai-message">
+                Aye, hello there! I'm Monty. How can I help you today? You can type a message or swipe left for voice.
+            </div>
+            <div class="message ai-message typing-indicator" id="typing-indicator" style="display: none;">
+                <span class="dot-1"></span><span class="dot-2"></span><span class="dot-3"></span>
+            </div>
+        </main>
+
+        <footer>
+            <div class="input-wrapper chat-input-container">
+                <input type="text" id="chat-input" placeholder="Type a message...">
+                <button id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="input-wrapper voice-input-container">
+                <button id="voice-button">
+                     <i class="fas fa-microphone-alt mic-icon"></i>
+                     <div class="hive">
+                         <div class="hive-ring hive-ring-1"></div>
+                         <div class="hive-ring hive-ring-2"></div>
+                         <div class="hive-ring hive-ring-3"></div>
+                     </div>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM ELEMENTS ---
+            const appContainer = document.getElementById('app-container');
+            const chatLog = document.getElementById('chat-log');
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            const voiceButton = document.getElementById('voice-button');
+            const typingIndicator = document.getElementById('typing-indicator');
+
+            // --- BACKEND ENDPOINT ---
+            const BACKEND_URL = 'https://n8n.srv909550.hstgr.cloud/webhook/monty-personal-assistant';
+
+            // --- SWIPE GESTURE LOGIC ---
+            let touchStartX = 0;
+            let touchEndX = 0;
+            const swipeThreshold = 50; 
+
+            appContainer.addEventListener('touchstart', e => {
+                if (e.target.closest('.chat-log')) return;
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            appContainer.addEventListener('touchend', e => {
+                if (e.target.closest('.chat-log')) return;
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+
+            function handleSwipe() {
+                if (touchEndX < touchStartX - swipeThreshold) appContainer.classList.add('voice-mode');
+                if (touchEndX > touchStartX + swipeThreshold) appContainer.classList.remove('voice-mode');
+            }
+            
+            // --- CHAT FUNCTIONALITY ---
+            const handleUserMessage = () => {
+                const messageText = chatInput.value.trim();
+                if (messageText !== '') {
+                    addMessage('user', messageText);
+                    chatInput.value = '';
+                    getMontyResponse(messageText);
+                }
+            };
+
+            sendButton.addEventListener('click', handleUserMessage);
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleUserMessage();
+            });
+            
+            // --- VOICE FUNCTIONALITY (TAP & HOLD) ---
+            const handleVoiceStart = (e) => {
+                e.preventDefault();
+                voiceButton.classList.add('recording');
+            };
+
+            const handleVoiceEnd = () => {
+                voiceButton.classList.remove('recording');
+                // In a real app, Speech-to-Text would provide the text.
+                // Here, we send a placeholder to the backend.
+                const voicePlaceholder = "[User voice input]";
+                addMessage('user', '🎙️ ...'); // Show a mic icon to represent voice
+                getMontyResponse(voicePlaceholder);
+            };
+
+            voiceButton.addEventListener('mousedown', handleVoiceStart);
+            voiceButton.addEventListener('mouseup', handleVoiceEnd);
+            voiceButton.addEventListener('mouseleave', () => { if (voiceButton.classList.contains('recording')) handleVoiceEnd(); });
+            voiceButton.addEventListener('touchstart', handleVoiceStart);
+            voiceButton.addEventListener('touchend', handleVoiceEnd);
+
+            // --- MESSAGE & BACKEND LOGIC ---
+            function addMessage(sender, text) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', `${sender}-message`);
+                messageElement.textContent = text;
+                // Insert the new message before the typing indicator
+                chatLog.insertBefore(messageElement, typingIndicator);
+                scrollToBottom();
+            }
+            
+            function showTypingIndicator() {
+                typingIndicator.style.display = 'flex';
+                scrollToBottom();
+            }
+
+            function hideTypingIndicator() {
+                typingIndicator.style.display = 'none';
+            }
+
+            function scrollToBottom() {
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
+
+            async function getMontyResponse(userMessage) {
+                showTypingIndicator();
+
+                try {
+                    const response = await fetch(BACKEND_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: userMessage }) // Assumes backend expects { "message": "..." }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    // IMPORTANT: Assumes backend returns JSON with a 'reply' key, e.g., { "reply": "Monty's answer" }
+                    const data = await response.json();
+                    
+                    if (data.reply) {
+                        addMessage('ai', data.reply);
+                    } else {
+                        // Handle cases where the 'reply' key is missing
+                        addMessage('ai', "Sorry, I couldn't quite get that. Could you try again?");
+                        console.error("Backend response is missing 'reply' key:", data);
+                    }
+
+                } catch (error) {
+                    console.error("Error fetching from backend:", error);
+                    addMessage('ai', "Och, I seem to be having some technical trouble. Give me a moment.");
+                } finally {
+                    hideTypingIndicator();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
