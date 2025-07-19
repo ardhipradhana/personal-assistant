@@ -404,8 +404,9 @@
                     });
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const data = await response.json();
-                    if (data.reply) {
-                        addMessage('ai', data.reply);
+                    if (Array.isArray(data) && data.length > 0 && data[0].output) {
+                        // Get the 'output' from the FIRST object in the array
+                        addMessage('ai', data[0].output); 
                     } else {
                         addMessage('ai', "Sorry, I couldn't quite get that. Could you try again?");
                         console.error("Backend response is missing 'reply' key:", data);
