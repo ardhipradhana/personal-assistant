@@ -396,24 +396,45 @@
     
             async function getMontyResponse(userMessage) {
                 showTypingIndicator();
+    
                 try {
                     const response = await fetch(BACKEND_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify({ message: userMessage })
                     });
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    const data = await response.json();
-                    if (Array.isArray(data) && data.length > 0 && data[0].output) {
-                        // Get the 'output' from the FIRST object in the array
-                        addMessage('ai', data[0].output); 
-                    } else {
-                        addMessage('ai', "Sorry, I couldn't quite get that. Could you try again?");
-                        console.error("Backend response is missing 'reply' key:", data);
+    
+                    // --- START OF DEBUGGING LOGS ---
+                    console.log("Response Status:", response.status, response.statusText);
+                    
+                    // Clone the response to log the raw text, as response.json() can only be read once
+                    const responseText = await response.clone().text();
+                    console.log("Raw Response Text from Backend:", responseText);
+                    // --- END OF DEBUGGING LOGS ---
+    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}. See console for raw response.`);
                     }
+                    
+                    // Now, parse the JSON
+                    const data = await response.json();
+                    console.log("Parsed JSON data:", data); // Log the parsed data structure
+    
+                    // Check the structure we expect from the backend
+                    if (Array.isArray(data) && data.length > 0 && data[0] && data[0].output) {
+                        // It's the correct structure!
+                        addMessage('ai', data[0].output);
+                    } else {
+                        // The structure is not what we expected
+                        console.error("Error: The parsed JSON data does not have the expected structure [ { output: '...' } ]");
+                        addMessage('ai', "Sorry, I received a response I couldn't understand. Please check the logs.");
+                    }
+    
                 } catch (error) {
-                    console.error("Error fetching from backend:", error);
-                    addMessage('ai', "Och, I seem to be having some technical trouble. Give me a moment.");
+                    console.error("An error occurred in getMontyResponse function:", error);
+                    addMessage('ai', "Och, I'm having trouble connecting. Please check the browser console for errors.");
                 } finally {
                     hideTypingIndicator();
                 }
