@@ -419,8 +419,19 @@
                     }
                     
                     // Now, parse the JSON
-                    const data = await response.json();
-                    console.log("Parsed JSON data:", data); // Log the parsed data structure
+                    let data = await response.json();
+                    console.log("Initial parsed data:", data);
+                    
+                    // Handle case where data is actually a stringified JSON array (double-encoded)
+                    if (typeof data === 'string') {
+                        try {
+                            data = JSON.parse(data);
+                            console.log("Re-parsed JSON data after string check:", data);
+                        } catch (e) {
+                            console.error("Failed to parse stringified JSON:", e);
+                            throw new Error("Invalid JSON format received from backend.");
+                        }
+                    }
     
                     // Check the structure we expect from the backend
                     if (Array.isArray(data) && data.length > 0 && data[0] && data[0].output) {
