@@ -376,7 +376,13 @@
             function addMessage(sender, text) {
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', `${sender}-message`);
-                messageElement.textContent = text;
+            
+                // FIX: handle objects
+                if (typeof text === "object" && text !== null) {
+                    messageElement.textContent = JSON.stringify(text, null, 2);
+                } else {
+                    messageElement.textContent = text;
+                }
                 chatLog.insertBefore(messageElement, typingIndicator);
                 scrollToBottom();
             }
