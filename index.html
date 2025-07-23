@@ -2,461 +2,771 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Monty AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monty Assistant</title>
     <style>
-        /* FONT IMPORT */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
-        /* CSS VARIABLES FOR THEME */
-        :root {
-            --background-dark: #121212;
-            --surface-dark: #1E1E1E;
-            --primary-gold: #FFD700;
-            --accent-cyan: #00FFFF;
-            --text-primary: #EAEAEA;
-            --text-secondary: #A0A0A0;
-            --font-main: 'Inter', sans-serif;
-        }
-
-        /* BASIC RESET & SETUP */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        html, body {
-            height: 100%;
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
             overflow: hidden;
-            background-color: var(--background-dark);
-            color: var(--text-primary);
-            font-family: var(--font-main);
+            height: 100vh;
         }
 
-        /* MAIN APP CONTAINER */
-        .app-container {
+        .container {
+            display: flex;
+            width: 200vw;
+            height: 100vh;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .interface {
+            width: 50vw;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh; /* Full viewport height */
-            width: 100%;
-            background-color: var(--background-dark);
-            transition: background-color 0.3s ease;
+            position: relative;
         }
 
-        /* HEADER */
-        header {
-            padding: 15px 20px;
-            background-color: var(--surface-dark);
-            border-bottom: 1px solid #2a2a2a;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        header h1 {
-            font-size: 1.4rem;
-            color: var(--primary-gold);
-            font-weight: 700;
-        }
-
-        header .status-dot {
-            width: 10px;
-            height: 10px;
-            background-color: var(--accent-cyan);
-            border-radius: 50%;
-            animation: pulse-dot 2s infinite;
-        }
-
-        @keyframes pulse-dot {
-            0% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 255, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 255, 255, 0); }
-        }
-
-        /* CHAT LOG */
-        .chat-log {
-            flex-grow: 1;
-            overflow-y: auto;
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding: 20px;
             display: flex;
-            flex-direction: column;
-            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
         }
-        
-        /* For better scrollbar styling on Webkit browsers */
-        .chat-log::-webkit-scrollbar { width: 5px; }
-        .chat-log::-webkit-scrollbar-thumb { background: var(--primary-gold); border-radius: 10px; }
-        .chat-log::-webkit-scrollbar-track { background: var(--surface-dark); }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00f5ff, #0080ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .mode-indicator {
+            padding: 8px 16px;
+            background: rgba(0, 245, 255, 0.1);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Chat Interface */
+        .chat-interface {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        }
+
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
         .message {
             max-width: 80%;
-            padding: 12px 18px;
+            padding: 16px 20px;
             border-radius: 20px;
-            line-height: 1.5;
-            font-size: 1rem;
-            word-wrap: break-word;
+            position: relative;
+            animation: messageSlide 0.3s ease-out;
         }
 
-        .ai-message {
-            background-color: var(--surface-dark);
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .user-message {
-            background-color: var(--accent-cyan);
-            color: #000;
+        .message.user {
             align-self: flex-end;
-            border-bottom-right-radius: 5px;
-        }
-        
-        /* TYPING INDICATOR */
-        .typing-indicator {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .typing-indicator span {
-            height: 8px;
-            width: 8px;
-            background-color: var(--text-secondary);
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-        .typing-indicator .dot-1 { animation-delay: -0.32s; }
-        .typing-indicator .dot-2 { animation-delay: -0.16s; }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
+            background: linear-gradient(135deg, #0080ff, #00f5ff);
+            color: #000;
+            font-weight: 500;
         }
 
-        /* FOOTER & INPUTS */
-        footer {
-            padding: 10px 15px;
-            background-color: var(--surface-dark);
-            border-top: 1px solid #2a2a2a;
-            flex-shrink: 0;
-            position: relative;
-            min-height: 70px;
+        .message.assistant {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-area {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-container {
             display: flex;
+            gap: 12px;
             align-items: center;
         }
 
-        .input-wrapper {
-            width: 100%;
-            position: absolute;
-            left: 0;
-            padding: 10px 15px;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        /* CHAT INPUT STYLES */
-        .chat-input-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 1;
-            transform: translateX(0);
-        }
-        .app-container.voice-mode .chat-input-container {
-            opacity: 0;
-            transform: translateX(100%);
-            pointer-events: none;
-        }
-        #chat-input {
-            width: 100%;
-            background-color: var(--background-dark);
-            border: 1px solid #444;
+        .message-input {
+            flex: 1;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 25px;
-            padding: 12px 20px;
-            color: var(--text-primary);
-            font-size: 1rem;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
         }
-        #chat-input:focus { outline: none; border-color: var(--primary-gold); }
-        #send-button { background: none; border: none; color: var(--primary-gold); font-size: 1.5rem; cursor: pointer; }
 
-        /* VOICE INPUT STYLES */
-        .voice-input-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transform: translateX(-100%);
-            pointer-events: none;
+        .message-input:focus {
+            border-color: #00f5ff;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
         }
-        .app-container.voice-mode .voice-input-container {
-            opacity: 1;
-            transform: translateX(0);
-            pointer-events: auto;
+
+        .message-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
-        #voice-button {
-            width: 70px;
-            height: 70px;
-            background-color: var(--primary-gold);
-            border: none;
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
+            background: linear-gradient(135deg, #00f5ff, #0080ff);
+            border: none;
             cursor: pointer;
-            position: relative;
             display: flex;
-            justify-content: center;
             align-items: center;
-            transition: transform 0.2s ease;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
-        #voice-button:active { transform: scale(0.95); }
-        .mic-icon { font-size: 2rem; color: var(--background-dark); transition: opacity 0.3s ease; }
-        
-        /* HIVE/ORB ANIMATION */
-        .hive {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.5s ease;
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
         }
-        #voice-button.recording .hive { opacity: 1; }
-        #voice-button.recording .mic-icon { opacity: 0; }
-        .hive-ring {
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Voice Interface */
+        .voice-interface {
+            background: linear-gradient(135deg, #1a0033 0%, #2d1b69 100%);
+        }
+
+        .voice-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Hive Processing Animation */
+        .hive-container {
             position: absolute;
             top: 50%;
             left: 50%;
-            border: 2px solid var(--primary-gold);
-            border-radius: 50%;
-            transform: translate(-50%, -50%) scale(1);
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
             opacity: 0;
+            transition: opacity 0.5s ease;
         }
-        #voice-button.recording .hive-ring { animation: hive-pulse 2s ease-out infinite; }
-        .hive-ring-1 { width: 100%; height: 100%; animation-delay: 0s !important; }
-        .hive-ring-2 { width: 100%; height: 100%; animation-delay: 0.5s !important; }
-        .hive-ring-3 { width: 100%; height: 100%; animation-delay: 1s !important; }
-        @keyframes hive-pulse {
-            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+
+        .hive-container.active {
+            opacity: 1;
+        }
+
+        .hexagon {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.3), rgba(255, 0, 128, 0.3));
+            border: 1px solid rgba(0, 245, 255, 0.5);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+            animation: hiveGlow 2s infinite ease-in-out;
+        }
+
+        .hexagon:nth-child(1) { top: 35px; left: 85px; animation-delay: 0s; }
+        .hexagon:nth-child(2) { top: 55px; left: 65px; animation-delay: 0.2s; }
+        .hexagon:nth-child(3) { top: 55px; left: 105px; animation-delay: 0.4s; }
+        .hexagon:nth-child(4) { top: 75px; left: 45px; animation-delay: 0.6s; }
+        .hexagon:nth-child(5) { top: 75px; left: 85px; animation-delay: 0.8s; }
+        .hexagon:nth-child(6) { top: 75px; left: 125px; animation-delay: 1s; }
+        .hexagon:nth-child(7) { top: 95px; left: 65px; animation-delay: 1.2s; }
+        .hexagon:nth-child(8) { top: 95px; left: 105px; animation-delay: 1.4s; }
+        .hexagon:nth-child(9) { top: 115px; left: 85px; animation-delay: 1.6s; }
+
+        @keyframes hiveGlow {
+            0%, 100% {
+                background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(255, 0, 128, 0.1));
+                border-color: rgba(0, 245, 255, 0.3);
+                transform: scale(1);
+            }
+            50% {
+                background: linear-gradient(135deg, rgba(0, 245, 255, 0.6), rgba(255, 0, 128, 0.6));
+                border-color: rgba(0, 245, 255, 1);
+                transform: scale(1.1);
+                box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+            }
+        }
+
+        .processing-text {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(0, 245, 255, 0.8);
+            animation: processingPulse 1.5s infinite;
+        }
+
+        @keyframes processingPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Hide other elements when processing */
+        .voice-content.processing .record-button,
+        .voice-content.processing .voice-status,
+        .voice-content.processing .voice-instruction {
+            opacity: 0.2;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .voice-status {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+
+        .record-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #ff0080;
+            background: radial-gradient(circle, rgba(255, 0, 128, 0.1) 0%, transparent 70%);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .record-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(255, 0, 128, 0.4);
+        }
+
+        .record-button.recording {
+            animation: pulse 1.5s infinite;
+            background: radial-gradient(circle, rgba(255, 0, 128, 0.3) 0%, transparent 70%);
+            box-shadow: 0 0 60px rgba(255, 0, 128, 0.6);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .record-icon {
+            width: 30px;
+            height: 30px;
+            background: #ff0080;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .record-button.recording .record-icon {
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .voice-instruction {
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.6;
+            max-width: 300px;
+        }
+
+        /* Navigation */
+        .nav-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            opacity: 0.4;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .swipe-indicator {
+            width: 20px;
+            height: 2px;
+            background: currentColor;
+            border-radius: 1px;
+            animation: swipeHint 2s infinite;
+        }
+
+        @keyframes swipeHint {
+            0%, 100% { transform: translateX(0); opacity: 0.4; }
+            50% { transform: translateX(-5px); opacity: 1; }
+        }
+
+        .message.voice-message {
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .message.voice-message::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: currentColor;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: voicePulse 1.5s infinite;
+        }
+
+        @keyframes voicePulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #00f5ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                width: 200vw;
+            }
+            
+            .interface {
+                width: 50vw;
+            }
         }
     </style>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
+    <div class="container" id="container">
+        <!-- Chat Interface -->
+        <div class="interface chat-interface">
+            <div class="header">
+                <div class="logo">Monty</div>
+                <div class="mode-indicator">Chat Mode</div>
+            </div>
+            
+            <div class="messages" id="messages">
+                <div class="message assistant">
+                    <div>Hello! I'm Monty, your personal assistant. How can I help you today?</div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <span>Thinking...</span>
+                </div>
+                <div class="input-container">
+                    <input type="text" class="message-input" id="messageInput" placeholder="Type your message...">
+                    <button class="send-btn" id="sendBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="nav-hint">
+                <div class="swipe-indicator"></div>
+                Swipe left for voice mode
+            </div>
+        </div>
 
-    <div class="app-container" id="app-container">
-        <header>
-            <div class="status-dot"></div>
-            <h1>Monty</h1>
-        </header>
+        <!-- Voice Interface -->
+        <div class="interface voice-interface">
+            <div class="header">
+                <div class="logo">Monty</div>
+                <div class="mode-indicator">Voice Mode</div>
+            </div>
+            
+            <div class="voice-content" id="voiceContent">
+                <div class="voice-status" id="voiceStatus">Ready to listen</div>
+                
+                <div class="record-button" id="recordBtn">
+                    <div class="record-icon"></div>
+                </div>
+                
+                <div class="voice-instruction">
+                    Hold the button and speak your message. Release when done.
+                </div>
 
-        <main class="chat-log" id="chat-log">
-            <div class="message ai-message">
-                Aye, hello there! I'm Monty. How can I help you today? You can type a message or swipe left for voice.
+                <!-- Hive Processing Animation -->
+                <div class="hive-container" id="hiveContainer">
+                    <div class="hexagon"></div>
+                    <div class="hexagon"></div>
+                    <div class="hexagon"></div>
+                    <div class="hexagon"></div>
+                    <div class="hexagon"></div>
+                    <div class="hexagon"></div>
+                    <div class="hexagon"></div>
+                    <div class="hexagon"></div>
+                    <div class="hexagon"></div>
+                    <div class="processing-text">Processing your message...</div>
+                </div>
             </div>
-            <div class="message ai-message typing-indicator" id="typing-indicator" style="display: none;">
-                <span class="dot-1"></span><span class="dot-2"></span><span class="dot-3"></span>
+            
+            <div class="nav-hint">
+                <div class="swipe-indicator" style="transform: scaleX(-1);"></div>
+                Swipe right for chat mode
             </div>
-        </main>
-
-        <footer>
-            <div class="input-wrapper chat-input-container">
-                <input type="text" id="chat-input" placeholder="Type a message...">
-                <button id="send-button">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            <div class="input-wrapper voice-input-container">
-                <button id="voice-button">
-                     <i class="fas fa-microphone-alt mic-icon"></i>
-                     <div class="hive">
-                         <div class="hive-ring hive-ring-1"></div>
-                         <div class="hive-ring hive-ring-2"></div>
-                         <div class="hive-ring hive-ring-3"></div>
-                     </div>
-                </button>
-            </div>
-        </footer>
+        </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM ELEMENTS ---
-            const appContainer = document.getElementById('app-container');
-            const chatLog = document.getElementById('chat-log');
-            const chatInput = document.getElementById('chat-input');
-            const sendButton = document.getElementById('send-button');
-            const voiceButton = document.getElementById('voice-button');
-            const typingIndicator = document.getElementById('typing-indicator');
-    
-            // --- BACKEND ENDPOINT ---
-            const BACKEND_URL = 'https://n8n.srv909550.hstgr.cloud/webhook/monty-personal-assistant';
-    
-            // --- IMPROVED SWIPE GESTURE LOGIC ---
-            let touchStartX = 0;
-            let touchStartY = 0;
-            let touchEndX = 0;
-            let touchEndY = 0;
-            const swipeThreshold = 50; // Minimum pixels for a swipe
-    
-            appContainer.addEventListener('touchstart', (e) => {
-                // Only capture the start coordinates
-                touchStartX = e.changedTouches[0].screenX;
-                touchStartY = e.changedTouches[0].screenY;
-            }, { passive: false }); // Use non-passive to allow preventDefault
-    
-            appContainer.addEventListener('touchmove', (e) => {
-                // Get the current touch position
-                const currentX = e.changedTouches[0].screenX;
-                const currentY = e.changedTouches[0].screenY;
+        class MontyInterface {
+            constructor() {
+                this.container = document.getElementById('container');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.messages = document.getElementById('messages');
+                this.loading = document.getElementById('loading');
+                this.recordBtn = document.getElementById('recordBtn');
+                this.voiceStatus = document.getElementById('voiceStatus');
+                this.voiceContent = document.getElementById('voiceContent');
+                this.hiveContainer = document.getElementById('hiveContainer');
                 
-                // Calculate the distance swiped in X and Y directions
-                const deltaX = Math.abs(currentX - touchStartX);
-                const deltaY = Math.abs(currentY - touchStartY);
-    
-                // If the horizontal swipe is greater than the vertical swipe,
-                // prevent the browser's default action (like page navigation).
-                if (deltaX > deltaY) {
+                this.currentMode = 'chat';
+                this.isRecording = false;
+                this.mediaRecorder = null;
+                this.audioChunks = [];
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.setupTouchNavigation();
+            }
+            
+            setupEventListeners() {
+                // Chat functionality
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+                
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+                
+                // Voice functionality
+                this.recordBtn.addEventListener('mousedown', () => this.startRecording());
+                this.recordBtn.addEventListener('mouseup', () => this.stopRecording());
+                this.recordBtn.addEventListener('mouseleave', () => this.stopRecording());
+                
+                // Touch events for mobile
+                this.recordBtn.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                }
-            }, { passive: false }); // Use non-passive to allow preventDefault
-    
-            appContainer.addEventListener('touchend', (e) => {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
-            });
-    
-            function handleSwipe() {
-                const deltaX = touchEndX - touchStartX;
-                // Ensure there was a significant horizontal swipe, not just a tap
-                if (Math.abs(deltaX) > swipeThreshold) {
-                    if (deltaX < 0) {
-                        // Swiped Left -> Activate Voice Mode
-                        appContainer.classList.add('voice-mode');
-                    } else {
-                        // Swiped Right -> Activate Chat Mode
-                        appContainer.classList.remove('voice-mode');
-                    }
-                }
+                    this.startRecording();
+                });
+                this.recordBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    this.stopRecording();
+                });
             }
             
-            // --- CHAT FUNCTIONALITY ---
-            const handleUserMessage = () => {
-                const messageText = chatInput.value.trim();
-                if (messageText !== '') {
-                    addMessage('user', messageText);
-                    chatInput.value = '';
-                    getMontyResponse(messageText);
-                }
-            };
-    
-            sendButton.addEventListener('click', handleUserMessage);
-            chatInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') handleUserMessage();
-            });
-            
-            // --- VOICE FUNCTIONALITY (TAP & HOLD) ---
-            const handleVoiceStart = (e) => {
-                e.preventDefault();
-                voiceButton.classList.add('recording');
-            };
-    
-            const handleVoiceEnd = () => {
-                voiceButton.classList.remove('recording');
-                const voicePlaceholder = "[User voice input]";
-                addMessage('user', '🎙️ ...'); 
-                getMontyResponse(voicePlaceholder);
-            };
-    
-            voiceButton.addEventListener('mousedown', handleVoiceStart);
-            voiceButton.addEventListener('mouseup', handleVoiceEnd);
-            voiceButton.addEventListener('mouseleave', () => { if (voiceButton.classList.contains('recording')) handleVoiceEnd(); });
-            voiceButton.addEventListener('touchstart', handleVoiceStart);
-            voiceButton.addEventListener('touchend', handleVoiceEnd);
-    
-            // --- MESSAGE & BACKEND LOGIC ---
-            function addMessage(sender, text) {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message', `${sender}-message`);
-            
-                // FIX: handle objects
-                if (typeof text === "object" && text !== null) {
-                    messageElement.textContent = JSON.stringify(text, null, 2);
-                } else {
-                    messageElement.textContent = text;
-                }
-                chatLog.insertBefore(messageElement, typingIndicator);
-                scrollToBottom();
-            }
-            
-            function showTypingIndicator() {
-                typingIndicator.style.display = 'flex';
-                scrollToBottom();
-            }
-    
-            function hideTypingIndicator() {
-                typingIndicator.style.display = 'none';
-            }
-    
-            function scrollToBottom() {
-                chatLog.scrollTop = chatLog.scrollHeight;
-            }
-    
-            async function getMontyResponse(userMessage) {
-                showTypingIndicator();
-    
-                try {
-                    const response = await fetch(BACKEND_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ message: userMessage })
-                    });
-    
-                    // --- START OF DEBUGGING LOGS ---
-                    console.log("Response Status:", response.status, response.statusText);
+            setupTouchNavigation() {
+                let startX = 0;
+                let startY = 0;
+                
+                document.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                });
+                
+                document.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+                
+                document.addEventListener('touchend', (e) => {
+                    const endX = e.changedTouches[0].clientX;
+                    const endY = e.changedTouches[0].clientY;
+                    const deltaX = startX - endX;
+                    const deltaY = Math.abs(startY - endY);
                     
-                    // Clone the response to log the raw text, as response.json() can only be read once
-                    const responseText = await response.clone().text();
-                    console.log("Raw Response Text from Backend:", responseText);
-                    // --- END OF DEBUGGING LOGS ---
-    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}. See console for raw response.`);
-                    }
-                    
-                    // Now, parse the JSON
-                    let data = await response.json();
-                    console.log("Initial parsed data:", data);
-                    
-                    // Handle case where data is actually a stringified JSON array (double-encoded)
-                    if (typeof data === 'string') {
-                        try {
-                            data = JSON.parse(data);
-                            console.log("Re-parsed JSON data after string check:", data);
-                        } catch (e) {
-                            console.error("Failed to parse stringified JSON:", e);
-                            throw new Error("Invalid JSON format received from backend.");
+                    if (Math.abs(deltaX) > 50 && deltaY < 100) {
+                        if (deltaX > 0 && this.currentMode === 'chat') {
+                            this.switchToVoice();
+                        } else if (deltaX < 0 && this.currentMode === 'voice') {
+                            this.switchToChat();
                         }
                     }
-    
-                    // Check the structure we expect from the backend
-                    if (Array.isArray(data) && data.length > 0 && data[0] && data[0].output) {
-                        // It's the correct structure!
-                        addMessage('ai', data[0].output);
-                    } else {
-                        // The structure is not what we expected
-                        console.error("Error: The parsed JSON data does not have the expected structure [ { output: '...' } ]");
-                        addMessage('ai', "Sorry, I received a response I couldn't understand. Please check the logs.");
+                });
+                
+                // Mouse wheel navigation for desktop
+                document.addEventListener('wheel', (e) => {
+                    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                        if (e.deltaX > 0 && this.currentMode === 'chat') {
+                            this.switchToVoice();
+                        } else if (e.deltaX < 0 && this.currentMode === 'voice') {
+                            this.switchToChat();
+                        }
                     }
-    
+                });
+            }
+            
+            switchToVoice() {
+                this.currentMode = 'voice';
+                this.container.style.transform = 'translateX(-50vw)';
+            }
+            
+            switchToChat() {
+                this.currentMode = 'chat';
+                this.container.style.transform = 'translateX(0)';
+            }
+            
+            async sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message) return;
+                
+                this.addMessage(message, 'user');
+                this.messageInput.value = '';
+                this.showLoading(true);
+                this.sendBtn.disabled = true;
+                
+                try {
+                    const response = await fetch('https://n8n.srv909550.hstgr.cloud/webhook/monty-personal-assistant', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message })
+                    });
+                    
+                    const data = await response.json();
+                    const reply = data[0]?.output || 'Sorry, I couldn\'t process that request.';
+                    
+                    this.addMessage(reply, 'assistant');
                 } catch (error) {
-                    console.error("An error occurred in getMontyResponse function:", error);
-                    addMessage('ai', "Och, I'm having trouble connecting. Please check the browser console for errors.");
+                    console.error('Error:', error);
+                    this.addMessage('Sorry, there was an error connecting to the server.', 'assistant');
                 } finally {
-                    hideTypingIndicator();
+                    this.showLoading(false);
+                    this.sendBtn.disabled = false;
+                    this.messageInput.focus();
                 }
             }
-        });
+            
+            addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                messageDiv.innerHTML = `<div>${text}</div>`;
+                
+                this.messages.appendChild(messageDiv);
+                this.messages.scrollTop = this.messages.scrollHeight;
+            }
+            
+            showLoading(show) {
+                this.loading.classList.toggle('active', show);
+            }
+            
+            async startRecording() {
+                if (this.isRecording) return;
+                
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    this.mediaRecorder = new MediaRecorder(stream);
+                    this.audioChunks = [];
+                    
+                    this.mediaRecorder.ondataavailable = (event) => {
+                        this.audioChunks.push(event.data);
+                    };
+                    
+                    this.mediaRecorder.onstop = () => {
+                        this.processRecording();
+                    };
+                    
+                    this.mediaRecorder.start();
+                    this.isRecording = true;
+                    this.recordBtn.classList.add('recording');
+                    this.voiceStatus.textContent = 'Recording... Release to send';
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    this.voiceStatus.textContent = 'Microphone access denied';
+                }
+            }
+            
+            stopRecording() {
+                if (!this.isRecording || !this.mediaRecorder) return;
+                
+                this.mediaRecorder.stop();
+                this.isRecording = false;
+                this.recordBtn.classList.remove('recording');
+                this.voiceStatus.textContent = 'Processing...';
+                
+                // Stop all tracks
+                this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            
+            async processRecording() {
+                if (this.audioChunks.length === 0) {
+                    this.voiceStatus.textContent = 'Ready to listen';
+                    return;
+                }
+                
+                const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                this.sendVoiceMessage(audioBlob);
+            }
+            
+            async sendVoiceMessage(audioBlob) {
+                this.showProcessing(true);
+                
+                try {
+                    const formData = new FormData();
+                    formData.append('audio', audioBlob, 'voice_message.webm');
+                    formData.append('type', 'voice');
+                    
+                    const response = await fetch('https://n8n.srv909550.hstgr.cloud/webhook/monty-personal-assistant', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    // Check if response is audio
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('audio')) {
+                        // Handle audio response
+                        const audioResponseBlob = await response.blob();
+                        this.showProcessing(false);
+                        this.playVoiceResponse(audioResponseBlob);
+                        this.addVoiceMessage('🎵 Voice response', 'assistant');
+                    } else {
+                        // Handle JSON response (fallback)
+                        const data = await response.json();
+                        const reply = data[0]?.output || 'Sorry, I couldn\'t process that request.';
+                        this.showProcessing(false);
+                        this.addMessage(reply, 'assistant');
+                    }
+                    
+                    this.addVoiceMessage('🎤 Voice message sent', 'user');
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showProcessing(false);
+                    this.addMessage('Sorry, there was an error processing your voice message.', 'assistant');
+                }
+            }
+            
+            showProcessing(show) {
+                this.voiceContent.classList.toggle('processing', show);
+                this.hiveContainer.classList.toggle('active', show);
+                
+                if (show) {
+                    this.voiceStatus.textContent = 'Processing...';
+                } else {
+                    this.voiceStatus.textContent = 'Ready to listen';
+                }
+            }
+            
+            playVoiceResponse(audioBlob) {
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                
+                // Show playing status
+                this.voiceStatus.textContent = 'Playing response...';
+                
+                audio.onloadeddata = () => {
+                    audio.play().catch(error => {
+                        console.error('Error playing audio:', error);
+                        this.voiceStatus.textContent = 'Error playing response';
+                        setTimeout(() => {
+                            this.voiceStatus.textContent = 'Ready to listen';
+                        }, 2000);
+                    });
+                };
+                
+                audio.onended = () => {
+                    this.voiceStatus.textContent = 'Ready to listen';
+                    URL.revokeObjectURL(audioUrl);
+                };
+                
+                audio.onerror = () => {
+                    console.error('Audio playback error');
+                    this.voiceStatus.textContent = 'Error playing response';
+                    setTimeout(() => {
+                        this.voiceStatus.textContent = 'Ready to listen';
+                    }, 2000);
+                    URL.revokeObjectURL(audioUrl);
+                };
+            }
+            
+            addVoiceMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender} voice-message`;
+                messageDiv.innerHTML = `<div>${text}</div>`;
+                
+                this.messages.appendChild(messageDiv);
+                this.messages.scrollTop = this.messages.scrollHeight;
+            }
+        }
+        
+        // Initialize the interface
+        new MontyInterface();
     </script>
 </body>
 </html>
