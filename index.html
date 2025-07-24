@@ -496,8 +496,6 @@
                 this.audioChunks = [];
                 
                 this.init();
-                console.log('recordBtn element:', this.recordBtn);
-                alert('Constructor finished, recordBtn: ' + (this.recordBtn ? 'found' : 'NOT FOUND'));
 
                 setTimeout(() => {
                     const btn = document.getElementById('recordBtn');
@@ -543,22 +541,24 @@
                 this.recordBtn.addEventListener('mouseup', () => this.stopRecording());
                 this.recordBtn.addEventListener('mouseleave', () => this.stopRecording());
                 
-                // Touch events for mobile
-                this.recordBtn.addEventListener('touchstart', (e) => {
-                    alert('touchstart fired!'); // DEBUG
-                    console.log('touchstart event fired');
+                // Pointer events (works better on mobile)
+                this.recordBtn.addEventListener('pointerdown', (e) => {
+                    alert('pointerdown fired!'); // DEBUG
+                    console.log('pointerdown event fired');
+                    e.preventDefault();
                     this.startRecording();
-                }, { passive: false }); // Add this options object
+                });
                 
-                this.recordBtn.addEventListener('touchend', (e) => {
-                    alert('touchend fired!'); // DEBUG
-                    console.log('touchend event fired');
+                this.recordBtn.addEventListener('pointerup', (e) => {
+                    alert('pointerup fired!'); // DEBUG
+                    console.log('pointerup event fired');  
+                    e.preventDefault();
                     this.stopRecording();
-                }, { passive: false });
-
-                this.recordBtn.addEventListener('click', (e) => {
-                    alert('click fired!'); // DEBUG
-                    console.log('click event fired');
+                });
+                
+                this.recordBtn.addEventListener('pointercancel', (e) => {
+                    console.log('pointercancel fired');
+                    this.stopRecording();
                 });
             }
             
