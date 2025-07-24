@@ -618,6 +618,56 @@
             background: rgba(255, 215, 0, 0.1);
             border: 1px solid rgba(255, 215, 0, 0.3);
         }
+
+        /* Markdown styling in messages */
+        .message strong {
+            font-weight: 700;
+            color: #FFD700;
+        }
+        
+        .message em {
+            font-style: italic;
+            opacity: 0.9;
+        }
+        
+        .message code {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 3px;
+            padding: 2px 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .message h1, .message h2, .message h3 {
+            color: #FFD700;
+            margin: 8px 0 4px 0;
+            font-weight: 600;
+        }
+        
+        .message h1 { font-size: 1.2em; }
+        .message h2 { font-size: 1.1em; }
+        .message h3 { font-size: 1.05em; }
+        
+        .message ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        .message li {
+            margin: 2px 0;
+            list-style-type: disc;
+        }
+        
+        .message.user strong {
+            color: #FFFFFF;
+        }
+        
+        .message.user code {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #FFFFFF;
+        }
     </style>
 </head>
 <body>
@@ -922,6 +972,32 @@
                 const i = Math.floor(Math.log(bytes) / Math.log(k));
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
+
+            parseMarkdown(text) {
+                return text
+                    // Bold: **text** or __text__
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/__(.*?)__/g, '<strong>$1</strong>')
+                    
+                    // Italic: *text* or _text_
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/_(.*?)_/g, '<em>$1</em>')
+                    
+                    // Code: `text`
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    
+                    // Line breaks
+                    .replace(/\n/g, '<br>')
+                    
+                    // Headers: ### text
+                    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                    .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+                    .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+                    
+                    // Lists: - item or * item
+                    .replace(/^\s*[-*]\s+(.*$)/gm, '<li>$1</li>')
+                    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            }
             
             async sendMessage() {
                 const message = this.messageInput.value.trim();
@@ -1040,7 +1116,6 @@
                 
                 let receiptHTML = '';
                 if (sender === 'user') {
-                    // Simulate message states
                     setTimeout(() => {
                         const receipt = messageDiv.querySelector('.read-receipt');
                         if (receipt) {
@@ -1053,8 +1128,11 @@
                     receiptHTML = '<span class="read-receipt sent"></span>';
                 }
                 
+                // Parse markdown for assistant messages, keep user messages as plain text
+                const processedText = sender === 'assistant' ? this.parseMarkdown(text) : text;
+                
                 messageDiv.innerHTML = `
-                    <div>${text}</div>
+                    <div>${processedText}</div>
                     <div class="message-time">${timeString}${receiptHTML}</div>
                 `;
                 
