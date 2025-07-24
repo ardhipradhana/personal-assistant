@@ -17,6 +17,36 @@
             color: #ffffff;
             overflow: hidden;
             height: 100vh;
+            position: relative;
+        }
+
+        /* Geometric Background Pattern */
+        .geometric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .geometric-pattern {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(30deg, transparent 35%, rgba(255, 215, 0, 0.1) 36%, rgba(255, 215, 0, 0.1) 39%, transparent 40%),
+                linear-gradient(150deg, transparent 35%, rgba(255, 215, 0, 0.1) 36%, rgba(255, 215, 0, 0.1) 39%, transparent 40%),
+                linear-gradient(90deg, transparent 35%, rgba(255, 215, 0, 0.05) 36%, rgba(255, 215, 0, 0.05) 39%, transparent 40%);
+            background-size: 60px 60px;
+            animation: geometricMove 20s linear infinite;
+        }
+
+        @keyframes geometricMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
         }
 
         .container {
@@ -24,6 +54,8 @@
             width: 200vw;
             height: 100vh;
             transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            z-index: 2;
         }
 
         .interface {
@@ -36,9 +68,9 @@
 
         /* Header */
         .header {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
             padding: 20px;
             display: flex;
             align-items: center;
@@ -46,19 +78,18 @@
         }
 
         .logo {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(45deg, #00f5ff, #0080ff);
+            background: linear-gradient(45deg, #FFD700, #B8860B);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-family: 'Georgia', serif;
         }
 
-        .mode-indicator {
-            padding: 8px 16px;
-            background: rgba(0, 245, 255, 0.1);
-            border: 1px solid rgba(0, 245, 255, 0.3);
-            border-radius: 20px;
-            font-size: 12px;
+        .swipe-hint-header {
+            font-size: 11px;
+            opacity: 0.6;
+            color: #FFD700;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -66,29 +97,32 @@
         /* Chat Interface */
         .chat-interface {
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            position: relative;
         }
 
         .messages {
             flex: 1;
-            padding: 20px;
+            padding: 15px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 8px;
         }
 
         .message {
-            max-width: 80%;
-            padding: 16px 20px;
-            border-radius: 20px;
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 18px;
             position: relative;
             animation: messageSlide 0.3s ease-out;
+            font-size: 15px;
+            line-height: 1.4;
         }
 
         @keyframes messageSlide {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -98,22 +132,62 @@
 
         .message.user {
             align-self: flex-end;
-            background: linear-gradient(135deg, #0080ff, #00f5ff);
+            background: linear-gradient(135deg, #FFD700, #B8860B);
             color: #000;
             font-weight: 500;
+            border-bottom-right-radius: 4px;
         }
 
         .message.assistant {
             align-self: flex-start;
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-bottom-left-radius: 4px;
+            color: #ffffff;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 2px;
+            text-align: right;
+        }
+
+        .message.user .message-time {
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .message.assistant .message-time {
+            color: rgba(255, 255, 255, 0.5);
+            text-align: left;
+        }
+
+        .read-receipt {
+            display: inline-block;
+            margin-left: 4px;
+            font-size: 10px;
+        }
+
+        .read-receipt.sent::after {
+            content: "✓";
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        .read-receipt.delivered::after {
+            content: "✓✓";
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        .read-receipt.read::after {
+            content: "✓✓";
+            color: #FFD700;
         }
 
         .input-area {
             padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
         }
 
         .input-container {
@@ -135,8 +209,8 @@
         }
 
         .message-input:focus {
-            border-color: #00f5ff;
-            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
         }
 
         .message-input::placeholder {
@@ -147,18 +221,19 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #00f5ff, #0080ff);
+            background: linear-gradient(135deg, #FFD700, #B8860B);
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
         }
 
         .send-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
         }
 
         .send-btn:disabled {
@@ -167,9 +242,27 @@
             transform: none;
         }
 
+        .send-btn svg {
+            color: #000;
+        }
+
         /* Voice Interface */
         .voice-interface {
-            background: linear-gradient(135deg, #1a0033 0%, #2d1b69 100%);
+            background: linear-gradient(135deg, #1a0033 0%, #0a0a1a 100%);
+            position: relative;
+        }
+
+        /* Marble texture overlay */
+        .voice-interface::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.02) 0%, transparent 70%),
+                        linear-gradient(45deg, transparent 30%, rgba(255, 215, 0, 0.01) 50%, transparent 70%);
+            pointer-events: none;
         }
 
         .voice-content {
@@ -181,67 +274,187 @@
             padding: 40px;
             text-align: center;
             position: relative;
+            z-index: 3;
         }
 
-        /* Hive Processing Animation */
-        .hive-container {
+        .voice-status {
+            font-size: 18px;
+            margin-bottom: 60px;
+            opacity: 0.8;
+            color: #FFD700;
+            font-weight: 300;
+            transition: all 0.3s ease;
+        }
+
+        /* Liquid Pulsing Orb */
+        .record-button {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: none;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, rgba(184, 134, 11, 0.1) 70%, transparent 90%);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .record-button::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FFD700, #B8860B);
+            opacity: 0;
+            transition: all 0.4s ease;
+            animation: liquidPulse 3s ease-in-out infinite;
+        }
+
+        .record-button:hover::before {
+            opacity: 0.3;
+        }
+
+        .record-button.recording {
+            transform: scale(1.1);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.6);
+        }
+
+        .record-button.recording::before {
+            opacity: 0.5;
+            animation: liquidRecord 1.5s ease-in-out infinite;
+        }
+
+        @keyframes liquidPulse {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+                border-radius: 50%;
+            }
+            25% { 
+                transform: scale(1.05) rotate(5deg);
+                border-radius: 45% 55% 52% 48%;
+            }
+            50% { 
+                transform: scale(1.08) rotate(10deg);
+                border-radius: 48% 52% 45% 55%;
+            }
+            75% { 
+                transform: scale(1.05) rotate(5deg);
+                border-radius: 55% 45% 52% 48%;
+            }
+        }
+
+        @keyframes liquidRecord {
+            0%, 100% { 
+                transform: scale(1.1) rotate(0deg);
+                border-radius: 40% 60% 45% 55%;
+            }
+            33% { 
+                transform: scale(1.15) rotate(10deg);
+                border-radius: 55% 45% 60% 40%;
+            }
+            66% { 
+                transform: scale(1.12) rotate(-5deg);
+                border-radius: 45% 55% 40% 60%;
+            }
+        }
+
+        .record-icon {
+            width: 32px;
+            height: 32px;
+            background: #FFD700;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .record-button.recording .record-icon {
+            border-radius: 6px;
+            width: 24px;
+            height: 24px;
+            background: #FFD700;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+        }
+
+        /* Neural Network Animation */
+        .neural-network {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
+            width: 300px;
+            height: 300px;
             opacity: 0;
             transition: opacity 0.5s ease;
+            pointer-events: none;
         }
 
-        .hive-container.active {
+        .neural-network.active {
             opacity: 1;
         }
 
-        .hexagon {
+        .neural-node {
             position: absolute;
-            width: 30px;
-            height: 30px;
-            background: linear-gradient(135deg, rgba(0, 245, 255, 0.3), rgba(255, 0, 128, 0.3));
-            border: 1px solid rgba(0, 245, 255, 0.5);
-            clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
-            animation: hiveGlow 2s infinite ease-in-out;
+            width: 8px;
+            height: 8px;
+            background: #FFD700;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            opacity: 0.3;
+            transition: all 0.3s ease;
         }
 
-        .hexagon:nth-child(1) { top: 35px; left: 85px; animation-delay: 0s; }
-        .hexagon:nth-child(2) { top: 55px; left: 65px; animation-delay: 0.2s; }
-        .hexagon:nth-child(3) { top: 55px; left: 105px; animation-delay: 0.4s; }
-        .hexagon:nth-child(4) { top: 75px; left: 45px; animation-delay: 0.6s; }
-        .hexagon:nth-child(5) { top: 75px; left: 85px; animation-delay: 0.8s; }
-        .hexagon:nth-child(6) { top: 75px; left: 125px; animation-delay: 1s; }
-        .hexagon:nth-child(7) { top: 95px; left: 65px; animation-delay: 1.2s; }
-        .hexagon:nth-child(8) { top: 95px; left: 105px; animation-delay: 1.4s; }
-        .hexagon:nth-child(9) { top: 115px; left: 85px; animation-delay: 1.6s; }
+        .neural-node.active {
+            opacity: 1;
+            transform: scale(1.5);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+        }
 
-        @keyframes hiveGlow {
-            0%, 100% {
-                background: linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(255, 0, 128, 0.1));
-                border-color: rgba(0, 245, 255, 0.3);
-                transform: scale(1);
-            }
-            50% {
-                background: linear-gradient(135deg, rgba(0, 245, 255, 0.6), rgba(255, 0, 128, 0.6));
-                border-color: rgba(0, 245, 255, 1);
-                transform: scale(1.1);
-                box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
-            }
+        .neural-connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            opacity: 0;
+            transition: all 0.5s ease;
+            transform-origin: left center;
+        }
+
+        .neural-connection.active {
+            opacity: 0.8;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.6);
+        }
+
+        /* Hide other elements when processing */
+        .voice-content.processing .record-button,
+        .voice-content.processing .voice-status {
+            opacity: 0.3;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
         }
 
         .processing-text {
             position: absolute;
-            bottom: -50px;
+            bottom: 120px;
             left: 50%;
             transform: translateX(-50%);
             font-size: 14px;
-            font-weight: 500;
-            color: rgba(0, 245, 255, 0.8);
+            font-weight: 300;
+            color: #FFD700;
             animation: processingPulse 1.5s infinite;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .voice-content.processing .processing-text {
+            opacity: 1;
         }
 
         @keyframes processingPulse {
@@ -249,97 +462,30 @@
             50% { opacity: 1; }
         }
 
-        /* Hide other elements when processing */
-        .voice-content.processing .record-button,
-        .voice-content.processing .voice-status,
-        .voice-content.processing .voice-instruction {
-            opacity: 0.2;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-
-        .voice-status {
-            font-size: 18px;
-            margin-bottom: 40px;
-            opacity: 0.8;
-        }
-
-        .record-button {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 3px solid #ff0080;
-            background: radial-gradient(circle, rgba(255, 0, 128, 0.1) 0%, transparent 70%);
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .record-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 40px rgba(255, 0, 128, 0.4);
-        }
-
-        .record-button.recording {
-            animation: pulse 1.5s infinite;
-            background: radial-gradient(circle, rgba(255, 0, 128, 0.3) 0%, transparent 70%);
-            box-shadow: 0 0 60px rgba(255, 0, 128, 0.6);
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .record-icon {
-            width: 30px;
-            height: 30px;
-            background: #ff0080;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .record-button.recording .record-icon {
-            border-radius: 4px;
-            width: 20px;
-            height: 20px;
-        }
-
-        .voice-instruction {
-            margin-top: 30px;
-            font-size: 14px;
-            opacity: 0.6;
-            max-width: 300px;
-        }
-
-        /* Navigation */
-        .nav-hint {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 12px;
-            opacity: 0.4;
-            display: flex;
+        .loading {
+            display: none;
             align-items: center;
             gap: 8px;
+            font-size: 14px;
+            opacity: 0.7;
         }
 
-        .swipe-indicator {
-            width: 20px;
-            height: 2px;
-            background: currentColor;
-            border-radius: 1px;
-            animation: swipeHint 2s infinite;
+        .loading.active {
+            display: flex;
         }
 
-        @keyframes swipeHint {
-            0%, 100% { transform: translateX(0); opacity: 0.4; }
-            50% { transform: translateX(-5px); opacity: 1; }
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .message.voice-message {
@@ -362,30 +508,19 @@
             0%, 100% { opacity: 0.3; }
             50% { opacity: 1; }
         }
-        .loading {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            opacity: 0.7;
+
+        /* FIX: Proper z-index layering for voice interface */
+        .record-button {
+            z-index: 10 !important;
+            position: relative !important;
         }
 
-        .loading.active {
-            display: flex;
+        .neural-network {
+            z-index: 5 !important;
         }
 
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid #00f5ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .neural-network:not(.active) {
+            pointer-events: none !important;
         }
 
         /* Responsive */
@@ -397,35 +532,36 @@
             .interface {
                 width: 100vw;
             }
-        }
 
-        /* FIX: Proper z-index layering for voice interface */
-        .record-button {
-            z-index: 10 !important;
-            position: relative !important;
-        }
-        
-        .hive-container {
-            z-index: 5 !important;
-        }
-        
-        .hive-container:not(.active) {
-            pointer-events: none !important;
+            .record-button {
+                width: 120px;
+                height: 120px;
+            }
+
+            .neural-network {
+                width: 250px;
+                height: 250px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="geometric-bg">
+        <div class="geometric-pattern"></div>
+    </div>
+
     <div class="container" id="container">
         <!-- Chat Interface -->
         <div class="interface chat-interface">
             <div class="header">
                 <div class="logo">Monty</div>
-                <div class="mode-indicator">Chat Mode</div>
+                <div class="swipe-hint-header">Swipe left for voice mode</div>
             </div>
             
             <div class="messages" id="messages">
                 <div class="message assistant">
                     <div>Hello! I'm Monty, your personal assistant. How can I help you today?</div>
+                    <div class="message-time">12:30 PM</div>
                 </div>
             </div>
             
@@ -444,18 +580,13 @@
                     </button>
                 </div>
             </div>
-            
-            <div class="nav-hint">
-                <div class="swipe-indicator"></div>
-                Swipe left for voice mode
-            </div>
         </div>
 
         <!-- Voice Interface -->
         <div class="interface voice-interface">
             <div class="header">
                 <div class="logo">Monty</div>
-                <div class="mode-indicator">Voice Mode</div>
+                <div class="swipe-hint-header">Swipe right for chat mode</div>
             </div>
             
             <div class="voice-content" id="voiceContent">
@@ -464,29 +595,13 @@
                 <div class="record-button" id="recordBtn">
                     <div class="record-icon"></div>
                 </div>
-                
-                <div class="voice-instruction">
-                    Hold the button and speak your message. Release when done.
+
+                <!-- Neural Network Animation -->
+                <div class="neural-network" id="neuralNetwork">
+                    <!-- Nodes will be generated by JavaScript -->
                 </div>
 
-                <!-- Hive Processing Animation -->
-                <div class="hive-container" id="hiveContainer">
-                    <div class="hexagon"></div>
-                    <div class="hexagon"></div>
-                    <div class="hexagon"></div>
-                    <div class="hexagon"></div>
-                    <div class="hexagon"></div>
-                    <div class="hexagon"></div>
-                    <div class="hexagon"></div>
-                    <div class="hexagon"></div>
-                    <div class="hexagon"></div>
-                    <div class="processing-text">Processing your message...</div>
-                </div>
-            </div>
-            
-            <div class="nav-hint">
-                <div class="swipe-indicator" style="transform: scaleX(-1);"></div>
-                Swipe right for chat mode
+                <div class="processing-text">Processing your message...</div>
             </div>
         </div>
     </div>
@@ -502,28 +617,72 @@
                 this.recordBtn = document.getElementById('recordBtn');
                 this.voiceStatus = document.getElementById('voiceStatus');
                 this.voiceContent = document.getElementById('voiceContent');
-                this.hiveContainer = document.getElementById('hiveContainer');
+                this.neuralNetwork = document.getElementById('neuralNetwork');
                 
                 this.currentMode = 'chat';
                 this.isRecording = false;
                 this.mediaRecorder = null;
                 this.audioChunks = [];
+                this.audioContext = null;
+                this.analyser = null;
                 
                 this.init();
-
             }
             
             init() {
-                // Wait for DOM to be ready
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => {
-                        this.setupEventListeners();
-                        this.setupTouchNavigation();
-                    });
-                } else {
-                    this.setupEventListeners();
-                    this.setupTouchNavigation();
-                }
+                this.setupEventListeners();
+                this.setupTouchNavigation();
+                this.createNeuralNetwork();
+            }
+            
+            createNeuralNetwork() {
+                const nodes = [
+                    {x: 150, y: 80},   // Center top
+                    {x: 100, y: 120},  // Left upper
+                    {x: 200, y: 120},  // Right upper
+                    {x: 70, y: 150},   // Left middle
+                    {x: 150, y: 150},  // Center middle
+                    {x: 230, y: 150},  // Right middle
+                    {x: 100, y: 180},  // Left lower
+                    {x: 200, y: 180},  // Right lower
+                    {x: 150, y: 220},  // Center bottom
+                ];
+
+                const connections = [
+                    [0, 1], [0, 2], [1, 3], [1, 4], [2, 4], [2, 5],
+                    [3, 4], [4, 5], [3, 6], [4, 6], [4, 7], [5, 7],
+                    [6, 8], [7, 8], [4, 8]
+                ];
+
+                // Create nodes
+                nodes.forEach((node, index) => {
+                    const nodeEl = document.createElement('div');
+                    nodeEl.className = 'neural-node';
+                    nodeEl.style.left = node.x + 'px';
+                    nodeEl.style.top = node.y + 'px';
+                    nodeEl.dataset.index = index;
+                    this.neuralNetwork.appendChild(nodeEl);
+                });
+
+                // Create connections
+                connections.forEach(([from, to], index) => {
+                    const fromNode = nodes[from];
+                    const toNode = nodes[to];
+                    
+                    const dx = toNode.x - fromNode.x;
+                    const dy = toNode.y - fromNode.y;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+                    const connectionEl = document.createElement('div');
+                    connectionEl.className = 'neural-connection';
+                    connectionEl.style.left = fromNode.x + 'px';
+                    connectionEl.style.top = fromNode.y + 'px';
+                    connectionEl.style.width = length + 'px';
+                    connectionEl.style.transform = `rotate(${angle}deg)`;
+                    connectionEl.dataset.index = index;
+                    this.neuralNetwork.appendChild(connectionEl);
+                });
             }
             
             setupEventListeners() {
@@ -643,14 +802,18 @@
                         body: JSON.stringify({ message })
                     });
                     
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
                     const data = await response.json();
                     let reply;
                     if (Array.isArray(data) && data.length > 0 && data[0].output) {
-                        reply = data[0].output;  // Your format ✅
+                        reply = data[0].output;
                     } else if (data.output) {
-                        reply = data.output;     // Alternative format
+                        reply = data.output;
                     } else if (typeof data === 'string') {
-                        reply = data;            // Direct string
+                        reply = data;
                     } else {
                         reply = 'Sorry, I received an unexpected response format.';
                         console.error('Unexpected response format:', data);
@@ -670,7 +833,29 @@
             addMessage(text, sender) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${sender}`;
-                messageDiv.innerHTML = `<div>${text}</div>`;
+                
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                let receiptHTML = '';
+                if (sender === 'user') {
+                    // Simulate message states
+                    setTimeout(() => {
+                        const receipt = messageDiv.querySelector('.read-receipt');
+                        if (receipt) {
+                            receipt.className = 'read-receipt delivered';
+                            setTimeout(() => {
+                                receipt.className = 'read-receipt read';
+                            }, 1000);
+                        }
+                    }, 500);
+                    receiptHTML = '<span class="read-receipt sent"></span>';
+                }
+                
+                messageDiv.innerHTML = `
+                    <div>${text}</div>
+                    <div class="message-time">${timeString}${receiptHTML}</div>
+                `;
                 
                 this.messages.appendChild(messageDiv);
                 this.messages.scrollTop = this.messages.scrollHeight;
@@ -687,6 +872,18 @@
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     this.mediaRecorder = new MediaRecorder(stream);
                     this.audioChunks = [];
+                    
+                    // Setup audio analysis for amplitude detection
+                    try {
+                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const source = this.audioContext.createMediaStreamSource(stream);
+                        this.analyser = this.audioContext.createAnalyser();
+                        this.analyser.fftSize = 256;
+                        source.connect(this.analyser);
+                        this.updateAmplitude();
+                    } catch (e) {
+                        console.warn('Audio analysis not available:', e);
+                    }
                     
                     this.mediaRecorder.ondataavailable = (event) => {
                         this.audioChunks.push(event.data);
@@ -706,13 +903,46 @@
                 }
             }
             
+            updateAmplitude() {
+                if (!this.isRecording || !this.analyser) return;
+                
+                const bufferLength = this.analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                this.analyser.getByteFrequencyData(dataArray);
+                
+                // Calculate average amplitude
+                const sum = dataArray.reduce((acc, val) => acc + val, 0);
+                const average = sum / bufferLength;
+                const normalizedAmplitude = average / 255;
+                
+                // Update orb appearance based on amplitude
+                const goldIntensity = Math.min(1, normalizedAmplitude * 3);
+                const scale = 1 + (normalizedAmplitude * 0.3);
+                
+                this.recordBtn.style.filter = `brightness(${1 + goldIntensity}) saturate(${1 + goldIntensity * 0.5})`;
+                this.recordBtn.style.transform = `scale(${scale})`;
+                
+                if (this.isRecording) {
+                    requestAnimationFrame(() => this.updateAmplitude());
+                }
+            }
+            
             stopRecording() {
                 if (!this.isRecording || !this.mediaRecorder) return;
                 
                 this.mediaRecorder.stop();
                 this.isRecording = false;
                 this.recordBtn.classList.remove('recording');
+                this.recordBtn.style.filter = '';
+                this.recordBtn.style.transform = '';
                 this.voiceStatus.textContent = 'Processing...';
+                
+                // Clean up audio context
+                if (this.audioContext) {
+                    this.audioContext.close();
+                    this.audioContext = null;
+                    this.analyser = null;
+                }
                 
                 // Stop all tracks
                 this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
@@ -745,36 +975,33 @@
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     
-                    // Check if response is audio
+                    // DEBUG: Log all headers
+                    console.log('=== RESPONSE DEBUG ===');
+                    console.log('Status:', response.status);
+                    console.log('Content-Type:', response.headers.get('content-type'));
+                    console.log('All headers:', [...response.headers.entries()]);
+                    
+                    // Try to detect if it's actually audio by checking the response
                     const contentType = response.headers.get('content-type');
-                    console.log('Response content-type:', contentType); // Debug log
                     
                     if (contentType && (contentType.includes('audio') || contentType.includes('mpeg'))) {
-                        // Handle audio response
+                        console.log('Processing as AUDIO');
                         const audioResponseBlob = await response.blob();
-                        console.log('Audio blob received:', audioResponseBlob.size, 'bytes'); // Debug log
+                        console.log('Audio blob size:', audioResponseBlob.size, 'bytes');
+                        console.log('Audio blob type:', audioResponseBlob.type);
+                        
                         this.showProcessing(false);
                         this.playVoiceResponse(audioResponseBlob);
                         this.addVoiceMessage('🎵 Voice response received', 'assistant');
                     } else {
-                        // Handle JSON response (fallback)
+                        console.log('Processing as JSON (content-type:', contentType, ')');
                         const data = await response.json();
-                        console.log('JSON response received:', data); // Debug log
+                        console.log('JSON data:', data);
                         
-                        let reply;
-                        if (Array.isArray(data) && data.length > 0 && data[0].output) {
-                            reply = data[0].output;
-                        } else if (data.output) {
-                            reply = data.output;
-                        } else if (typeof data === 'string') {
-                            reply = data;
-                        } else {
-                            reply = 'Sorry, I received an unexpected response format.';
-                            console.error('Unexpected voice response format:', data);
-                        }
-                        
+                        // Your backend might be wrapping the audio URL in JSON
+                        // Check if there's an audio file reference in the JSON
                         this.showProcessing(false);
-                        this.addMessage(reply, 'assistant');
+                        this.addMessage('Received JSON response instead of audio', 'assistant');
                     }
                     
                     this.addVoiceMessage('🎤 Voice message sent', 'user');
@@ -786,12 +1013,59 @@
                 }
             }
             
+            animateNeuralNetwork() {
+                const nodes = this.neuralNetwork.querySelectorAll('.neural-node');
+                const connections = this.neuralNetwork.querySelectorAll('.neural-connection');
+                
+                // Reset all animations
+                nodes.forEach(node => node.classList.remove('active'));
+                connections.forEach(conn => conn.classList.remove('active'));
+                
+                // Animate nodes and connections in sequence
+                let delay = 0;
+                const animationInterval = 200;
+                
+                const animateSequence = () => {
+                    if (!this.voiceContent.classList.contains('processing')) return;
+                    
+                    // Activate nodes in a spreading pattern
+                    nodes.forEach((node, index) => {
+                        setTimeout(() => {
+                            if (this.voiceContent.classList.contains('processing')) {
+                                node.classList.add('active');
+                                setTimeout(() => node.classList.remove('active'), animationInterval * 2);
+                            }
+                        }, delay + index * animationInterval * 0.3);
+                    });
+                    
+                    // Activate connections
+                    connections.forEach((conn, index) => {
+                        setTimeout(() => {
+                            if (this.voiceContent.classList.contains('processing')) {
+                                conn.classList.add('active');
+                                setTimeout(() => conn.classList.remove('active'), animationInterval * 1.5);
+                            }
+                        }, delay + index * animationInterval * 0.2);
+                    });
+                    
+                    // Repeat animation
+                    setTimeout(() => {
+                        if (this.voiceContent.classList.contains('processing')) {
+                            animateSequence();
+                        }
+                    }, nodes.length * animationInterval * 0.3 + 500);
+                };
+                
+                animateSequence();
+            }
+            
             showProcessing(show) {
                 this.voiceContent.classList.toggle('processing', show);
-                this.hiveContainer.classList.toggle('active', show);
+                this.neuralNetwork.classList.toggle('active', show);
                 
                 if (show) {
                     this.voiceStatus.textContent = 'Processing...';
+                    this.animateNeuralNetwork();
                 } else {
                     this.voiceStatus.textContent = 'Ready to listen';
                 }
@@ -832,7 +1106,14 @@
             addVoiceMessage(text, sender) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${sender} voice-message`;
-                messageDiv.innerHTML = `<div>${text}</div>`;
+                
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                messageDiv.innerHTML = `
+                    <div>${text}</div>
+                    <div class="message-time">${timeString}</div>
+                `;
                 
                 this.messages.appendChild(messageDiv);
                 this.messages.scrollTop = this.messages.scrollHeight;
