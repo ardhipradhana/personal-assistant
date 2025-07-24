@@ -547,18 +547,14 @@
                 this.recordBtn.addEventListener('touchstart', (e) => {
                     alert('touchstart fired!'); // DEBUG
                     console.log('touchstart event fired');
-                    e.preventDefault();
-                    e.stopPropagation();
                     this.startRecording();
-                });
+                }, { passive: false }); // Add this options object
                 
                 this.recordBtn.addEventListener('touchend', (e) => {
                     alert('touchend fired!'); // DEBUG
                     console.log('touchend event fired');
-                    e.preventDefault();
-                    e.stopPropagation();
                     this.stopRecording();
-                });
+                }, { passive: false });
 
                 this.recordBtn.addEventListener('click', (e) => {
                     alert('click fired!'); // DEBUG
@@ -571,14 +567,16 @@
                 let startY = 0;
                 
                 document.addEventListener('touchstart', (e) => {
+                    // Ignore touches on the record button
                     if (e.target.closest('#recordBtn')) return;
+                    
                     startX = e.touches[0].clientX;
                     startY = e.touches[0].clientY;
-                });
+                }, { passive: true }); // Add this
                 
                 document.addEventListener('touchmove', (e) => {
                     e.preventDefault();
-                }, { passive: false });
+                }, { passive: false }); // Change this
                 
                 document.addEventListener('touchend', (e) => {
                     const endX = e.changedTouches[0].clientX;
@@ -593,7 +591,7 @@
                             this.switchToChat();
                         }
                     }
-                });
+                }, { passive: true }); // Add this
                 
                 // Mouse wheel navigation for desktop
                 document.addEventListener('wheel', (e) => {
