@@ -496,6 +496,8 @@
                 this.audioChunks = [];
                 
                 this.init();
+                console.log('recordBtn element:', this.recordBtn);
+                alert('Constructor finished, recordBtn: ' + (this.recordBtn ? 'found' : 'NOT FOUND'));
             }
             
             init() {
@@ -521,14 +523,24 @@
                 
                 // Touch events for mobile
                 this.recordBtn.addEventListener('touchstart', (e) => {
+                    alert('touchstart fired!'); // DEBUG
+                    console.log('touchstart event fired');
                     e.preventDefault();
                     e.stopPropagation();
                     this.startRecording();
                 });
+                
                 this.recordBtn.addEventListener('touchend', (e) => {
+                    alert('touchend fired!'); // DEBUG
+                    console.log('touchend event fired');
                     e.preventDefault();
                     e.stopPropagation();
                     this.stopRecording();
+                });
+
+                this.recordBtn.addEventListener('click', (e) => {
+                    alert('click fired!'); // DEBUG
+                    console.log('click event fired');
                 });
             }
             
