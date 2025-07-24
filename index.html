@@ -497,19 +497,6 @@
                 
                 this.init();
 
-                setTimeout(() => {
-                    const btn = document.getElementById('recordBtn');
-                    console.log('Direct button binding:', btn);
-                    
-                    btn.addEventListener('touchstart', (e) => {
-                        alert('DIRECT touchstart worked!');
-                        e.preventDefault();
-                    });
-                    
-                    btn.addEventListener('click', (e) => {
-                        alert('DIRECT click worked!');
-                    });
-                }, 100);
             }
             
             init() {
@@ -526,7 +513,7 @@
             }
             
             setupEventListeners() {
-                // Chat functionality
+                // Chat functionality (keep this as is)
                 this.messageInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -536,30 +523,33 @@
                 
                 this.sendBtn.addEventListener('click', () => this.sendMessage());
                 
-                // Voice functionality
-                this.recordBtn.addEventListener('mousedown', () => this.startRecording());
-                this.recordBtn.addEventListener('mouseup', () => this.stopRecording());
-                this.recordBtn.addEventListener('mouseleave', () => this.stopRecording());
+                // VOICE - SIMPLE MOBILE-FIRST APPROACH
+                let isPressed = false;
                 
-                // Pointer events (works better on mobile)
-                this.recordBtn.addEventListener('pointerdown', (e) => {
-                    alert('pointerdown fired!'); // DEBUG
-                    console.log('pointerdown event fired');
+                // Handle all press events
+                const startPress = (e) => {
+                    if (isPressed) return;
+                    isPressed = true;
                     e.preventDefault();
+                    e.stopPropagation();
+                    alert('Press detected!');
                     this.startRecording();
-                });
+                };
                 
-                this.recordBtn.addEventListener('pointerup', (e) => {
-                    alert('pointerup fired!'); // DEBUG
-                    console.log('pointerup event fired');  
+                const endPress = (e) => {
+                    if (!isPressed) return;
+                    isPressed = false;
                     e.preventDefault();
+                    e.stopPropagation();
+                    alert('Release detected!');
                     this.stopRecording();
-                });
+                };
                 
-                this.recordBtn.addEventListener('pointercancel', (e) => {
-                    console.log('pointercancel fired');
-                    this.stopRecording();
-                });
+                // Add all event types
+                this.recordBtn.addEventListener('touchstart', startPress, { passive: false });
+                this.recordBtn.addEventListener('touchend', endPress, { passive: false });
+                this.recordBtn.addEventListener('mousedown', startPress);
+                this.recordBtn.addEventListener('mouseup', endPress);
             }
             
             setupTouchNavigation() {
@@ -567,12 +557,12 @@
                 let startY = 0;
                 
                 document.addEventListener('touchstart', (e) => {
-                    // Ignore touches on the record button
-                    if (e.target.closest('#recordBtn')) return;
+                    // Ignore ALL touches on or near the record button
+                    if (e.target.closest('.record-button') || e.target.closest('#recordBtn')) return;
                     
                     startX = e.touches[0].clientX;
                     startY = e.touches[0].clientY;
-                }, { passive: true }); // Add this
+                }, { passive: true });
                 
                 document.addEventListener('touchmove', (e) => {
                     e.preventDefault();
