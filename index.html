@@ -522,10 +522,12 @@
                 // Touch events for mobile
                 this.recordBtn.addEventListener('touchstart', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     this.startRecording();
                 });
                 this.recordBtn.addEventListener('touchend', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     this.stopRecording();
                 });
             }
@@ -535,6 +537,7 @@
                 let startY = 0;
                 
                 document.addEventListener('touchstart', (e) => {
+                    if (e.target.closest('#recordBtn')) return;
                     startX = e.touches[0].clientX;
                     startY = e.touches[0].clientY;
                 });
@@ -636,6 +639,8 @@
             }
             
             async startRecording() {
+                console.log('startRecording called'); // ADD THIS
+                alert('Recording started!');
                 if (this.isRecording) return;
                 
                 try {
