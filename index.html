@@ -513,7 +513,7 @@
             }
             
             setupEventListeners() {
-                // Chat functionality (keep this as is)
+                // Chat functionality
                 this.messageInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -523,36 +523,16 @@
                 
                 this.sendBtn.addEventListener('click', () => this.sendMessage());
                 
-                // VOICE - SIMPLE MOBILE-FIRST APPROACH
-                let isPressed = false;
-                
-                // Handle all press events
-                const startPress = (e) => {
-                    if (isPressed) return;
-                    isPressed = true;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    alert('Press detected!');
+                // ULTRA SIMPLE VOICE TEST
+                this.recordBtn.onclick = () => {
+                    alert('Button clicked!');
                     this.startRecording();
                 };
-                
-                const endPress = (e) => {
-                    if (!isPressed) return;
-                    isPressed = false;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    alert('Release detected!');
-                    this.stopRecording();
-                };
-                
-                // Add all event types
-                this.recordBtn.addEventListener('touchstart', startPress, { passive: false });
-                this.recordBtn.addEventListener('touchend', endPress, { passive: false });
-                this.recordBtn.addEventListener('mousedown', startPress);
-                this.recordBtn.addEventListener('mouseup', endPress);
             }
             
             setupTouchNavigation() {
+                // DISABLED FOR TESTING
+                /*
                 let startX = 0;
                 let startY = 0;
                 
@@ -566,7 +546,7 @@
                 
                 document.addEventListener('touchmove', (e) => {
                     e.preventDefault();
-                }, { passive: false }); // Change this
+                }, { passive: false });
                 
                 document.addEventListener('touchend', (e) => {
                     const endX = e.changedTouches[0].clientX;
@@ -581,7 +561,8 @@
                             this.switchToChat();
                         }
                     }
-                }, { passive: true }); // Add this
+                }, { passive: true });
+                */
                 
                 // Mouse wheel navigation for desktop
                 document.addEventListener('wheel', (e) => {
