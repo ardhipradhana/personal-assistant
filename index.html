@@ -498,11 +498,33 @@
                 this.init();
                 console.log('recordBtn element:', this.recordBtn);
                 alert('Constructor finished, recordBtn: ' + (this.recordBtn ? 'found' : 'NOT FOUND'));
+
+                setTimeout(() => {
+                    const btn = document.getElementById('recordBtn');
+                    console.log('Direct button binding:', btn);
+                    
+                    btn.addEventListener('touchstart', (e) => {
+                        alert('DIRECT touchstart worked!');
+                        e.preventDefault();
+                    });
+                    
+                    btn.addEventListener('click', (e) => {
+                        alert('DIRECT click worked!');
+                    });
+                }, 100);
             }
             
             init() {
-                this.setupEventListeners();
-                this.setupTouchNavigation();
+                // Wait for DOM to be ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => {
+                        this.setupEventListeners();
+                        this.setupTouchNavigation();
+                    });
+                } else {
+                    this.setupEventListeners();
+                    this.setupTouchNavigation();
+                }
             }
             
             setupEventListeners() {
