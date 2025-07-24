@@ -599,7 +599,17 @@
                     });
                     
                     const data = await response.json();
-                    const reply = data[0]?.output || 'Sorry, I couldn\'t process that request.';
+                    let reply;
+                    if (Array.isArray(data) && data.length > 0 && data[0].output) {
+                        reply = data[0].output;  // Your format ✅
+                    } else if (data.output) {
+                        reply = data.output;     // Alternative format
+                    } else if (typeof data === 'string') {
+                        reply = data;            // Direct string
+                    } else {
+                        reply = 'Sorry, I received an unexpected response format.';
+                        console.error('Unexpected response format:', data);
+                    }
                     
                     this.addMessage(reply, 'assistant');
                 } catch (error) {
