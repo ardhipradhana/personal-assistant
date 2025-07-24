@@ -486,16 +486,22 @@
             50% { opacity: 1; }
         }
 
-        .loading {
-            display: none;
+        .thinking-message {
+            max-width: 60%;
+            opacity: 0.8;
+            animation: thinkingPulse 1.5s infinite;
+        }
+        
+        .thinking-content {
+            display: flex;
             align-items: center;
             gap: 8px;
             font-size: 14px;
-            opacity: 0.7;
         }
-
-        .loading.active {
-            display: flex;
+        
+        @keyframes thinkingPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
 
         .spinner {
@@ -691,10 +697,6 @@
             </div>
             
             <div class="input-area">
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <span>Thinking...</span>
-                </div>
                 <div class="input-container">
                     <button class="attach-btn" id="attachBtn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -744,7 +746,6 @@
                 this.messageInput = document.getElementById('messageInput');
                 this.sendBtn = document.getElementById('sendBtn');
                 this.messages = document.getElementById('messages');
-                this.loading = document.getElementById('loading');
                 this.recordBtn = document.getElementById('recordBtn');
                 this.voiceStatus = document.getElementById('voiceStatus');
                 this.voiceContent = document.getElementById('voiceContent');
@@ -1141,7 +1142,27 @@
             }
             
             showLoading(show) {
-                this.loading.classList.toggle('active', show);
+                if (show) {
+                    // Create and add thinking message
+                    const thinkingDiv = document.createElement('div');
+                    thinkingDiv.className = 'message assistant thinking-message';
+                    thinkingDiv.id = 'thinkingMessage';
+                    thinkingDiv.innerHTML = `
+                        <div class="thinking-content">
+                            <div class="spinner"></div>
+                            <span>Thinking...</span>
+                        </div>
+                    `;
+                    
+                    this.messages.appendChild(thinkingDiv);
+                    this.messages.scrollTop = this.messages.scrollHeight;
+                } else {
+                    // Remove thinking message
+                    const thinkingMessage = document.getElementById('thinkingMessage');
+                    if (thinkingMessage) {
+                        thinkingMessage.remove();
+                    }
+                }
             }
             
             async startRecording() {
