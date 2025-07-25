@@ -247,6 +247,8 @@
         .send-btn {
             width: 50px;
             height: 50px;
+            min-width: 50px;
+            min-height: 50px;
             border-radius: 50%;
             background: linear-gradient(135deg, #FFD700, #B8860B);
             border: none;
@@ -256,6 +258,7 @@
             justify-content: center;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            flex-shrink: 0;
         }
 
         .send-btn:hover {
@@ -438,6 +441,7 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
             opacity: 0.3;
             transition: all 0.3s ease;
+            transform: translate(-50%, -50%); /* Center the node on its position */
         }
 
         .neural-node.active {
@@ -778,20 +782,19 @@
             }
             
             createNeuralNetwork() {
-                const containerRect = this.neuralNetwork.getBoundingClientRect();
-                const centerX = 150; // Half of 300px width
-                const centerY = 150; // Half of 300px height
+                const centerX = 150 - 4; // 150 (half container) - 4 (half node width)
+                const centerY = 150 - 4; // 150 (half container) - 4 (half node height)
                 
                 const nodes = [
-                    {x: centerX, y: centerY - 50},        // Center top
-                    {x: centerX - 40, y: centerY - 25},   // Left upper
-                    {x: centerX + 40, y: centerY - 25},   // Right upper
-                    {x: centerX - 55, y: centerY},        // Left middle
+                    {x: centerX, y: centerY - 45},        // Center top
+                    {x: centerX - 35, y: centerY - 22},   // Left upper
+                    {x: centerX + 35, y: centerY - 22},   // Right upper
+                    {x: centerX - 50, y: centerY},        // Left middle
                     {x: centerX, y: centerY},             // Center middle (record button position)
-                    {x: centerX + 55, y: centerY},        // Right middle
-                    {x: centerX - 40, y: centerY + 25},   // Left lower
-                    {x: centerX + 40, y: centerY + 25},   // Right lower
-                    {x: centerX, y: centerY + 50},        // Center bottom
+                    {x: centerX + 50, y: centerY},        // Right middle
+                    {x: centerX - 35, y: centerY + 22},   // Left lower
+                    {x: centerX + 35, y: centerY + 22},   // Right lower
+                    {x: centerX, y: centerY + 45},        // Center bottom
                 ];
 
                 const connections = [
