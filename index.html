@@ -192,6 +192,9 @@
             padding: 20px;
             background: rgba(0, 0, 0, 0.4);
             border-top: 1px solid rgba(255, 215, 0, 0.2);
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
         }
 
         @media (max-width: 768px) {
@@ -419,6 +422,7 @@
             opacity: 0;
             transition: opacity 0.5s ease;
             pointer-events: none;
+            z-index: 5;
         }
 
         .neural-network.active {
@@ -541,7 +545,7 @@
 
         /* FIX: Proper z-index layering for voice interface */
         .record-button {
-            z-index: 10 !important;
+            z-index: 15 !important;
             position: relative !important;
         }
 
@@ -575,8 +579,10 @@
         }
 
         .attach-btn {
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            min-height: 50px;
             border-radius: 50%;
             background: rgba(255, 215, 0, 0.1);
             border: 1px solid rgba(255, 215, 0, 0.3);
@@ -585,6 +591,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            flex-shrink: 0;
         }
         
         .attach-btn:hover {
@@ -771,17 +778,20 @@
             }
             
             createNeuralNetwork() {
-                const centerX = 150, centerY = 150;
+                const containerRect = this.neuralNetwork.getBoundingClientRect();
+                const centerX = 150; // Half of 300px width
+                const centerY = 150; // Half of 300px height
+                
                 const nodes = [
-                    {x: centerX, y: centerY - 60},        // Center top
-                    {x: centerX - 45, y: centerY - 35},   // Left upper
-                    {x: centerX + 45, y: centerY - 35},   // Right upper
-                    {x: centerX - 65, y: centerY},        // Left middle
-                    {x: centerX, y: centerY},             // Center middle
-                    {x: centerX + 65, y: centerY},        // Right middle
-                    {x: centerX - 45, y: centerY + 35},   // Left lower
-                    {x: centerX + 45, y: centerY + 35},   // Right lower
-                    {x: centerX, y: centerY + 60},        // Center bottom
+                    {x: centerX, y: centerY - 50},        // Center top
+                    {x: centerX - 40, y: centerY - 25},   // Left upper
+                    {x: centerX + 40, y: centerY - 25},   // Right upper
+                    {x: centerX - 55, y: centerY},        // Left middle
+                    {x: centerX, y: centerY},             // Center middle (record button position)
+                    {x: centerX + 55, y: centerY},        // Right middle
+                    {x: centerX - 40, y: centerY + 25},   // Left lower
+                    {x: centerX + 40, y: centerY + 25},   // Right lower
+                    {x: centerX, y: centerY + 50},        // Center bottom
                 ];
 
                 const connections = [
